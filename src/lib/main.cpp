@@ -1,7 +1,7 @@
 #include "constexprutils.hpp"
 #include "muzik.hpp"
-#include <iostream>
-#include <fstream>
+//#include <iostream>
+//#include <fstream>
 #include <limits>
 #include <type_traits>
 
@@ -18,9 +18,17 @@ T encode(float f)
 
 #define F(x)\
     CE_FLOAT(x)
+#define INTERVAL(x,y)\
+    Range<F(x),F(y)>
+
+using namespace muzik;
+
+template<unsigned a, unsigned b, unsigned c>
+using simpleSin = Sin<a,b,c>;
+
+/*
 int main()
 {
-    using namespace muzik;
     //Sin<F(50),Const<F(1)>> synth;
     //using synA = Sin<F(700),Const<F(1)>>;
     using synA = Sin<F(1), Sin<F(50),Const<F(1)>>>;
@@ -28,7 +36,13 @@ int main()
     using synC = Noise;
     //using result = MixNormalize<synA, synB>;
     using train = Sin<F(5),Noise>;
-    using result = MixNormalize<synA, synB,train>;
+    using trainWithHumming = MixNormalize<synA, synB,train>;
+    //using result = Sin<F(1600), trainWithHumming,INTERVAL(0.6,0.9)>;
+    using spikes = SawTooth<F(40)>;
+    //using result = Sin<F(5),Sin<F(800)>>;
+    //
+    //using result = Harmonics<100,1, SawTooth>;
+    using result = AbsDifference<SawTooth<F(100)>, SawTooth<F(100)>>;
 
     result synth;
 
@@ -40,15 +54,46 @@ int main()
         return 1;
     }
 
-    size_t fSample = 44100;
     size_t length = 10;
-    for(size_t i = 0; i < fSample*length; i += 1)
+    for(size_t i = 0; i < muzik::SAMPLING_RATE*length; i += 1)
     {
-        std::cout << "VAL: " << synth.value(i) << std::endl;
         output << encode<int8_t>(synth.value(i));
     }
 
     static_assert(getFloat(11.5) == 115, "LOL");
-    constexpr float number = 1.332323;
+    constexpr float number = -10.567;
     std::cout << getFloat(number) << "/" << getFloatRemainer(number) << std::endl;
+    std::cout << (getFloat(number)/getFloatRemainer(number)) << std::endl;
+
+    std::cout << RANGE_NORMAL::getMin() << " to " << RANGE_NORMAL::getMax() << std::endl;
 }
+*/
+
+int main()
+{
+    using synA = Sin<F(1), Sin<F(50),Const<F(1)>>>;
+    using synB = Sin<F(5), Sin<F(80),Const<F(1)>>>;
+    using synC = Noise;
+    //using result = MixNormalize<synA, synB>;
+    using train = Sin<F(5),Noise>;
+    using trainWithHumming = MixNormalize<synA, synB,train>;
+    //using result = Sin<F(1600), trainWithHumming,INTERVAL(0.6,0.9)>;
+    using spikes = SawTooth<F(40)>;
+    //using result = Sin<F(5),Sin<F(800)>>;
+    //
+    //using result = Harmonics<100,1, SawTooth>;
+    using result = AbsDifference<SawTooth<F(100)>, SawTooth<F(100)>>;
+
+    result synth;
+
+    unsigned char* buff = new unsigned char[44100];
+
+    size_t length = 1;
+    for(size_t i = 0; i < muzik::SAMPLING_RATE*length; i += 1)
+    {
+        buff[i] = encode<int8_t>(synth.value(i));
+    }
+    delete[] buff;
+}
+
+
