@@ -3,6 +3,8 @@
 
 #include "constexprutils.hpp"
 #include <cmath>
+#include <functional>
+#include <vector>
 
 namespace muzik
 {
@@ -207,6 +209,44 @@ struct AbsDifference
     static inline float value(float time)
     {
         return ceAbs(T1::value(time)-T2::value(time));
+    }
+};
+
+
+struct Track
+{
+private:
+    using event_t = std::pair<size_t, std::function<float(float)>>;
+    using event_vector_t = std::vector<event_t>;
+    event_vector_t events;
+
+public:
+    template<typename T>
+    inline void play(float duration)
+    {
+        auto event = [](float time)->float
+        {
+            return T::value(time);
+        };
+        // Add event
+        events.push_back(std::make_pair(duration,event));
+    }
+
+    inline void silence(float duration)
+    {
+        play<ZERO>(duration);
+    }
+
+    inline float value(float time)
+    {
+        float timePassed = 0.0f;
+        for(auto& event: events)
+        {
+            if(timePassed+event.first > time)
+                return event.second(time-timePassed);
+            timePassed += event.first;
+        }
+        return 0.0f;
     }
 };
 
