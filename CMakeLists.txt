@@ -1,1 +1,2 @@
-add_subdirectory(src/lib)
+add_subdirectory(src/muzik)
+add_subdirectory(src/alsa-player)

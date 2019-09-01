@@ -1,7 +1,7 @@
 #ifndef LIB_MUZIK_HPP
 #define LIB_MUZIK_HPP
 
-#include "constexprutils.hpp"
+#include "muzik/constexprutils.hpp"
 #include <cmath>
 #include <functional>
 #include <vector>
